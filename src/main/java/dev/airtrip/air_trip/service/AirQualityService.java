@@ -11,6 +11,7 @@ import org.springframework.web.client.RestTemplate;
 import dev.airtrip.air_trip.models.AirQualityDTO;
 import dev.airtrip.air_trip.models.AirQualityEntity;
 import dev.airtrip.air_trip.repository.AirQualityRepository;
+import io.github.cdimascio.dotenv.Dotenv;
 
 @Service
 public class AirQualityService {
@@ -18,11 +19,13 @@ public class AirQualityService {
     @Autowired
     private AirQualityRepository airQualityRepository;
 
-    private final String apiToken = "da6bc5e23756947d3d7e3c25e1f47a143239fe89";
-    private final String apiUrlPattern = "https://api.waqi.info/feed/%s/?token=%s";
+    @Autowired
+    private Dotenv dotenv;
 
     @Transactional
     public AirQualityDTO fetchAndSaveAirQualityData(String city) throws Exception {
+        String apiToken = dotenv.get("API_TOKEN");
+        String apiUrlPattern = dotenv.get("API_URL_PATTERN");
         String apiUrl = String.format(apiUrlPattern, city, apiToken);
 
         // Realizar la solicitud GET y obtener el JSON como String
@@ -48,8 +51,9 @@ public class AirQualityService {
 
     private Map<String, Double> parseAirQualityJson(String jsonData) {
         // Implementa aquí la lógica para parsear el JSON y extraer los valores necesarios
+        // Aquí un ejemplo básico, ajusta según la estructura real del JSON recibido
+        // Considera usar librerías como Jackson para parseo JSON más robusto
         Map<String, Double> values = new HashMap<>();
-        // Ejemplo de parseo básico, ajusta según la estructura real del JSON
         values.put("aqi", 119.0);
         values.put("co", 5.5);
         values.put("h", 65.0);
