@@ -1,0 +1,50 @@
+import dev.airtrip.air_trip.models.AirQualityPredictionDTO;
+import dev.airtrip.air_trip.service.AirQualityPredictionService;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest(AirQualityPredictionController.class)
+public class AirQualityPredictionControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
+    private AirQualityPredictionService airQualityPredictionService;
+
+    @Test
+    public void testGetAirQualityPredictionsSuccess() throws Exception {
+        String city = "testCity";
+        AirQualityPredictionDTO airQualityPredictionDTO = new AirQualityPredictionDTO();
+        airQualityPredictionDTO.setCityName(city);
+        // Add mock predictions to the DTO
+        // airQualityPredictionDTO.setPredictions(...);
+
+        when(airQualityPredictionService.fetchAirQualityPredictions(city)).thenReturn(airQualityPredictionDTO);
+
+        mockMvc.perform(get("/api/predictions/{city}", city)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json("{\"cityName\":\"testCity\"}"));
+    }
+
+    @Test
+    public void testGetAirQualityPredictionsFailure() throws Exception {
+        String city = "testCity";
+
+        when(airQualityPredictionService.fetchAirQualityPredictions(city)).thenThrow(new RuntimeException());
+
+        mockMvc.perform(get("/api/predictions/{city}", city)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError());
+    }
+}
