@@ -1,6 +1,20 @@
 # Read Me First
 The following was discovered as part of building this project:
 
+##1.2. Objective
+The objective of the project is that, based on the API that you have chosen from the different
+themes that you have available, make a web application that is as original as possible that
+may have a main functionality that you choose and which allows the manipulation of
+the data through a CRUD. Next, we will describe the necessary requirements.
+
+# 2. PROPOSED PROJECT
+## 2.1. The idea
+Basetis is a technology company with a great social commitment that allocates part of
+their efforts towards social and ethical responsibility in the different areas in which they
+We intervene. We get involved in causes that protect rights, well-being and health
+of people, especially the most disadvantaged, as well as in the conservation of the
+environment
+
 * The original package name 'dev.airtrip.air-trip' is invalid and this project uses 'dev.airtrip.air_trip' instead.
 
 # Getting Started
