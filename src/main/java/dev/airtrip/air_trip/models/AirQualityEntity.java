@@ -1,9 +1,4 @@
 package dev.airtrip.air_trip.models;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 import java.util.Map;
 
 import jakarta.persistence.CollectionTable;
@@ -16,10 +11,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapKeyColumn;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Table(name = "air_quality")
+@Table(name = "air_quality", uniqueConstraints = {@UniqueConstraint(columnNames = {"city_name"})})
 @Data
 @Getter 
 @Setter
@@ -32,7 +32,7 @@ public class AirQualityEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "city_name", unique = true, nullable = false)
     private String cityName;
 
     @ElementCollection

@@ -1,12 +1,17 @@
 package dev.airtrip.air_trip.service;
 
+
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import dev.airtrip.air_trip.models.AirQualityDTO;
 import dev.airtrip.air_trip.models.AirQualityEntity;
@@ -35,10 +40,20 @@ public class AirQualityService {
         // Procesar el JSON y extraer los datos necesarios
         Map<String, Double> values = parseAirQualityJson(jsonData);
 
-        // Guardar en la base de datos
-        AirQualityEntity entity = new AirQualityEntity();
-        entity.setCityName(city);
-        entity.setValues(values);
+        Optional<AirQualityEntity> existingEntity = airQualityRepository.findByCityName(city);
+
+        AirQualityEntity entity;
+        if (existingEntity.isPresent()) {
+            // Actualizar los valores de la entrada existente
+            entity = existingEntity.get();
+            entity.setValues(values);
+        } else {
+            // Crear una nueva entrada
+            entity = new AirQualityEntity();
+            entity.setCityName(city);
+            entity.setValues(values);
+        }
+
         airQualityRepository.save(entity);
 
         // Crear el DTO para enviar al frontend
@@ -49,22 +64,22 @@ public class AirQualityService {
         return dto;
     }
 
-    private Map<String, Double> parseAirQualityJson(String jsonData) {
-        // Implementa aquí la lógica para parsear el JSON y extraer los valores necesarios
-        // Aquí un ejemplo básico, ajusta según la estructura real del JSON recibido
-        // Considera usar librerías como Jackson para parseo JSON más robusto
+    private Map<String, Double> parseAirQualityJson(String jsonData) throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode root = objectMapper.readTree(jsonData);
+        JsonNode dataNode = root.path("data");
+        JsonNode iaqiNode = dataNode.path("iaqi");
+
         Map<String, Double> values = new HashMap<>();
-        values.put("aqi", 119.0);
-        values.put("co", 5.5);
-        values.put("h", 65.0);
-        values.put("no2", 10.1);
-        values.put("o3", 57.8);
-        values.put("p", 1004.0);
-        values.put("pm10", 58.0);
-        values.put("pm25", 119.0);
-        values.put("so2", 1.6);
-        values.put("t", 27.0);
-        values.put("w", 3.6);
+
+        if (iaqiNode.isObject()) {
+            iaqiNode.fieldNames().forEachRemaining(field -> {
+                JsonNode valueNode = iaqiNode.path(field).path("v");
+                if (valueNode.isNumber()) {
+                    values.put(field, valueNode.doubleValue());
+                }
+            });
+        }
 
         return values;
     }
