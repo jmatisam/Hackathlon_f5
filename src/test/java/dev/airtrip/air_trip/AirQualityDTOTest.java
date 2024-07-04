@@ -1,14 +1,14 @@
 package dev.airtrip.air_trip;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import dev.airtrip.air_trip.models.AirQualityDTO;
-
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import dev.airtrip.air_trip.models.AirQualityDTO;
 
 public class AirQualityDTOTest {
 
