@@ -72,6 +72,15 @@ public class AirQualityService {
 
         Map<String, Double> values = new HashMap<>();
 
+        if (dataNode.isObject()) {
+            dataNode.fieldNames().forEachRemaining(field -> {
+                JsonNode valueNode = dataNode.path("aqi");
+                if (valueNode.isNumber()) {
+                    values.put(field, valueNode.doubleValue());
+                }
+            });
+
+        }
         if (iaqiNode.isObject()) {
             iaqiNode.fieldNames().forEachRemaining(field -> {
                 JsonNode valueNode = iaqiNode.path(field).path("v");
