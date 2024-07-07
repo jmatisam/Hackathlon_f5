@@ -3,25 +3,28 @@ package dev.airtrip.air_trip.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import dev.airtrip.air_trip.service.AuthService;
+import dev.airtrip.air_trip.models.User;
+import dev.airtrip.air_trip.repository.UserRepository;
+
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api")
 public class AuthController {
 
     @Autowired
-    private AuthService authService;
+    private UserRepository userRepository;
 
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestParam String username, @RequestParam String password) {
-        if (authService.validateUser(username, password)) {
-            return ResponseEntity.ok("Login successful");
+    @PostMapping("/auth")
+    public ResponseEntity<?> authenticateUser(@RequestBody User user) {
+        User foundUser = userRepository.findByUsername(user.getUsername());
+        if (foundUser != null && foundUser.getPassword().equals(user.getPassword())) {
+            return ResponseEntity.ok("Authentication successful");
         } else {
-            return ResponseEntity.status(401).body("Invalid credentials");
+            return ResponseEntity.status(401).body("Authentication failed");
         }
     }
 }

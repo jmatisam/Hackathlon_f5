@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 import dev.airtrip.air_trip.models.AirQualityDTO;
 import dev.airtrip.air_trip.service.AirQualityService;
 
-
-
 @RestController
 @RequestMapping("/api/airquality")
 public class AirQualityController {

@@ -11,8 +11,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import dev.airtrip.air_trip.controller.AuthController;
-import dev.airtrip.air_trip.service.AuthService;
+import dev.airtrip.air_trip.models.User;
+import dev.airtrip.air_trip.repository.UserRepository;
 
 @WebMvcTest(AuthController.class)
 public class AuthControllerTest {
@@ -21,21 +24,27 @@ public class AuthControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private AuthService authService;
+    private UserRepository userRepository;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Test
     public void testLoginSuccess() throws Exception {
         String username = "testUser";
         String password = "testPass";
 
-        when(authService.validateUser(username, password)).thenReturn(true);
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(password);
 
-        mockMvc.perform(post("/api/auth/login")
-                .param("username", username)
-                .param("password", password)
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED))
+        when(userRepository.findByUsername(username)).thenReturn(user);
+
+        mockMvc.perform(post("/api/auth")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(user)))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Login successful"));
+                .andExpect(content().string("Authentication successful"));
     }
 
     @Test
@@ -43,13 +52,16 @@ public class AuthControllerTest {
         String username = "testUser";
         String password = "wrongPass";
 
-        when(authService.validateUser(username, password)).thenReturn(false);
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(password);
 
-        mockMvc.perform(post("/api/auth/login")
-                .param("username", username)
-                .param("password", password)
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED))
+        when(userRepository.findByUsername(username)).thenReturn(null);
+
+        mockMvc.perform(post("/api/auth")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(user)))
                 .andExpect(status().isUnauthorized())
-                .andExpect(content().string("Invalid credentials"));
+                .andExpect(content().string("Authentication failed"));
     }
 }
